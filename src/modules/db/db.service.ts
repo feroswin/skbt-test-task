@@ -10,12 +10,12 @@ export class DbService extends PrismaClient implements OnModuleInit {
 
     /**
      * Метод получения категории из БД
-     * @param query - Запрос
-     * @return ICategory Категория
+     * @param {Prisma.categoryFindFirstArgs} query - Запрос
+     * @return Полученная категория
      */
     async getCategory(query: Prisma.categoryFindFirstArgs): Promise<ICategory | undefined> {
         try {
-            return this.category.findFirst(query);
+            return await this.category.findFirst(query);
         } catch (e) {
             throw new HttpException('Ошибка получения категории', HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -23,8 +23,8 @@ export class DbService extends PrismaClient implements OnModuleInit {
 
     /**
      * Метод создания категории в БД
-     * @param query - Запрос
-     * @return ICategory Созданная категория
+     * @param {Prisma.categoryCreateArgs} query - Запрос
+     * @return Созданная категория
      */
     async createCategory(query: Prisma.categoryCreateArgs): Promise<ICategory> {
         try {
@@ -36,14 +36,27 @@ export class DbService extends PrismaClient implements OnModuleInit {
 
     /**
      * Метод удаления категории из БД
-     * @param query - Запрос
-     * @return ICategory Удаленная категория
+     * @param {Prisma.categoryDeleteArgs} query - Запрос
+     * @return Удаленная категория
      */
     async deleteCategory(query: Prisma.categoryDeleteArgs): Promise<ICategory> {
         try {
-            return this.category.delete(query);
+            return await this.category.delete(query);
         } catch (e) {
             throw new HttpException('Ошибка при удалении категории', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Метод обновления категории
+     * @param {Prisma.categoryUpdateArgs} query - Запрос
+     * @return Обновленная категория
+     */
+    async updateCategory(query: Prisma.categoryUpdateArgs): Promise<ICategory> {
+        try {
+            return await this.category.update(query);
+        } catch (e) {
+            throw new HttpException('Ошибка при обновлении категории', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
