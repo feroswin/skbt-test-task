@@ -1,12 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, ValidationPipe } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { ApiQuery, ApiResponse } from '@nestjs/swagger';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { CategoryDto } from './dto/category.dto';
+import { CreateCategoryDto } from './dto/request/create-category.dto';
+import { CategoryDto } from './dto/response/category.dto';
 import { ICategory } from '../../interfaces/category.interface';
-import { UpdateCategoryDto } from './dto/update-category.dto';
-import { ListCategoryFilter } from '../../decorators/list-category-filter.decorator';
-import { ListCategoryFilterDto } from './dto/list-category-filter.dto';
+import { UpdateCategoryDto } from './dto/request/update-category.dto';
+import { ListCategoryFilterDto } from './dto/request/list-category-filter.dto';
+import { ListCategoryFilters } from '../../decorators/list-category-filters.decorator';
 
 @Controller('category')
 export class CategoryController {
@@ -31,7 +31,11 @@ export class CategoryController {
         return this.categoryService.getCategory(id, slug);
     }
 
-    @ListCategoryFilter()
+    @ListCategoryFilters()
+    @ApiResponse({
+        status: 200,
+        type: [CategoryDto],
+    })
     @Get('list')
     getListCategory(
         @Query(

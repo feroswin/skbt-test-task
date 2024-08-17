@@ -1,11 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { DbService } from '../db/db.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
+import { CreateCategoryDto } from './dto/request/create-category.dto';
 import { ICategory } from '../../interfaces/category.interface';
 import * as crypto from 'crypto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
-import { ListCategoryFilterDto } from './dto/list-category-filter.dto';
+import { UpdateCategoryDto } from './dto/request/update-category.dto';
+import { ListCategoryFilterDto } from './dto/request/list-category-filter.dto';
 import { Prisma } from '@prisma/client';
+import { ListCategoriesDto } from './dto/response/list-categories.dto';
+import { CategoryDto } from './dto/response/category.dto';
 
 @Injectable()
 export class CategoryService {
@@ -34,19 +36,28 @@ export class CategoryService {
         return category;
     }
 
-    async getListCategory(queryParams: ListCategoryFilterDto) {
+    async getListCategory(queryParams: ListCategoryFilterDto): Promise<ListCategoriesDto> {
         // Создаем выражение условия для выборки
         const where: Prisma.categoryWhereInput = this.buildWhereCondition(queryParams);
         // Создаем выражение сортировки для выборки
         const orderBy: Prisma.categoryOrderByWithRelationInput = this.buildOrderByCondition(queryParams);
 
-        // Получаем список категорий и выводим его
-        return await this.dbService.getListCategory({
+        // Получаем количество категорий в зависимости от условия выборки
+        const countCategory = await this.dbService.countCategory({ where });
+
+        // Получаем список категорий
+        const listCategories: CategoryDto[] = await this.dbService.getListCategory({
             where,
             take: queryParams.pageSize,
             skip: queryParams.pageSize * (queryParams.page === 1 ? 0 : queryParams.page),
             orderBy,
         });
+
+        // Возвращаем ответ пользователю
+        return {
+            categories: listCategories,
+            count: countCategory,
+        };
     }
 
     /**

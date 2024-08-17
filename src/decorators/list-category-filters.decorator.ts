@@ -1,7 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiQuery } from '@nestjs/swagger';
 
-export function ListCategoryFilter() {
+export function ListCategoryFilters() {
     return applyDecorators(
         ApiQuery({
             required: false,

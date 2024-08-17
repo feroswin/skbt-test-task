@@ -30,7 +30,6 @@ export class DbService extends PrismaClient implements OnModuleInit {
         try {
             return await this.category.findMany(query);
         } catch (e) {
-            console.log(e);
             throw new HttpException('Ошибка при получении категорий', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -71,6 +70,19 @@ export class DbService extends PrismaClient implements OnModuleInit {
             return await this.category.update(query);
         } catch (e) {
             throw new HttpException('Ошибка при обновлении категории', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Метод подсчета количества категорий
+     * @param {Prisma.categoryCountArgs} query - Запрос
+     * @return Количество категорий
+     */
+    async countCategory(query: Prisma.categoryCountArgs): Promise<number> {
+        try {
+            return await this.category.count(query);
+        } catch (e) {
+            throw new HttpException('Ошибка при получении количества категорий', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
