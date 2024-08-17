@@ -29,6 +29,7 @@ export class ListCategoryFilterDto {
 
     @IsOptional()
     @IsString()
+    @Matches(new RegExp('^[A-Za-zА-Яа-яЁё\\s]*$'), { message: 'Значение должно содержать англ. или русские буквы' })
     @Transform(({ value }) => {
         if (typeof value === 'string') {
             return value.trim();

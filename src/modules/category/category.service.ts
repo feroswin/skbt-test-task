@@ -6,7 +6,6 @@ import * as crypto from 'crypto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { ListCategoryFilterDto } from './dto/list-category-filter.dto';
 import { Prisma } from '@prisma/client';
-import { hasPropertyCategoryInModel } from '../../helpers/hasPropertyInModel';
 
 @Injectable()
 export class CategoryService {
@@ -36,61 +35,17 @@ export class CategoryService {
     }
 
     async getListCategory(queryParams: ListCategoryFilterDto) {
-        // console.log(queryParams);
-        let where: Prisma.categoryWhereInput = {};
-        let orderBy: Prisma.categoryOrderByWithRelationInput = {};
+        // Создаем выражение условия для выборки
+        const where: Prisma.categoryWhereInput = this.buildWhereCondition(queryParams);
+        // Создаем выражение сортировки для выборки
+        const orderBy: Prisma.categoryOrderByWithRelationInput = this.buildOrderByCondition(queryParams);
 
-        if (queryParams.search) {
-            where = {
-                ...where,
-                OR: [{ name: { search: queryParams.search } }, { description: { search: queryParams.search } }],
-            };
-        }
-
-        if (queryParams.name && !queryParams.search) {
-            where = {
-                ...where,
-                name: { search: queryParams.name },
-            };
-        }
-
-        if (queryParams.description && !queryParams.search) {
-            where = {
-                ...where,
-                description: { search: queryParams.description },
-            };
-        }
-
-        if (queryParams.active !== undefined) {
-            where = {
-                ...where,
-                active: queryParams.active,
-            };
-        }
-
-        // console.log(queryParams);
-
-        if (queryParams.sort) {
-            const parseSortField = queryParams.sort.startsWith('-') ? queryParams.sort.split('-')[1] : queryParams.sort;
-
-            const fieldForSort = hasPropertyCategoryInModel(parseSortField) ? parseSortField : 'createdDate';
-
-            orderBy = {
-                ...orderBy,
-                [fieldForSort]: queryParams.sort.startsWith('-') ? 'desc' : 'asc',
-            };
-        } else {
-            orderBy = {
-                ...orderBy,
-                createdDate: 'desc',
-            };
-        }
-
+        // Получаем список категорий и выводим его
         return await this.dbService.getListCategory({
-            where: where,
+            where,
             take: queryParams.pageSize,
             skip: queryParams.pageSize * (queryParams.page === 1 ? 0 : queryParams.page),
-            orderBy: orderBy,
+            orderBy,
         });
     }
 
@@ -166,5 +121,83 @@ export class CategoryService {
                 id: id,
             },
         });
+    }
+
+    /**
+     * Метод создания выражения условия для выборки
+     * @param {ListCategoryFilterDto} queryParams - Параметры запроса
+     * @return Выражение условия для выборки
+     * @private
+     */
+    private buildWhereCondition(queryParams: ListCategoryFilterDto): Prisma.categoryWhereInput {
+        const where: Prisma.categoryWhereInput = {};
+
+        // Если параметр search установлен
+        if (queryParams.search) {
+            // Делаем поиск по полям name и description
+            where.OR = [{ name: { search: queryParams.search } }, { description: { search: queryParams.search } }];
+        } else {
+            // Если параметр search не установлен и параметры name и description присутствуют
+            // Если параметр name установлен
+            if (queryParams.name) {
+                // Делаем поиск по полю name
+                where.name = { search: queryParams.name };
+            }
+
+            // Если параметр description установлен
+            if (queryParams.description) {
+                // Делаем поиск по полю description
+                where.description = { search: queryParams.description };
+            }
+        }
+
+        // Если параметр active является undefined значит значение active валидно для нас
+        if (queryParams.active !== undefined) {
+            // Делаем поиск по полю active
+            where.active = queryParams.active;
+        }
+
+        // Возвращаем выражение условия для выборки
+        return where;
+    }
+
+    /**
+     * Метод создания выражения сортировки для выборки
+     * @param {ListCategoryFilterDto} queryParams - Параметры запроса
+     * @return Выражение сортировки для выборки
+     * @private
+     */
+    private buildOrderByCondition(queryParams: ListCategoryFilterDto): Prisma.categoryOrderByWithRelationInput {
+        // Устанавливаем поле по умолчанию
+        let orderByField = 'createdDate';
+        // Устанавливаем направление сортировки по умолчанию
+        let sortOrder: 'asc' | 'desc' = 'desc';
+
+        // Если поле sort есть в параметрах запроса
+        if (queryParams.sort) {
+            // Разбираем поле сортировки
+            orderByField = queryParams.sort.startsWith('-') ? queryParams.sort.substring(1) : queryParams.sort;
+            // Разбираем направление сортировки для поля
+            sortOrder = queryParams.sort.startsWith('-') ? 'desc' : 'asc';
+
+            // Если поле не существует в категории, то выставляем поле и направление сортировки по умолчанию
+            if (!this.hasPropertyCategoryInModel(orderByField)) {
+                orderByField = 'createdDate';
+                sortOrder = 'desc';
+            }
+        }
+        // Возвращаем выражение сортировки для выборки
+        return { [orderByField]: sortOrder };
+    }
+
+    /**
+     * Метод наличия свойства в модели категории
+     * @param {string} property - Название проверяемого свойство
+     * @return Наличие свойства в модели категории
+     * @private
+     */
+    private hasPropertyCategoryInModel(property: string): boolean {
+        const validFields = ['id', 'name', 'description', 'active', 'createdDate'];
+        return validFields.includes(property);
     }
 }
