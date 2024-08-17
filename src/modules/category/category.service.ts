@@ -15,7 +15,7 @@ export class CategoryService {
      * @return ICategory Категория
      */
     async getCategory(id: string, slug: string): Promise<ICategory> {
-        const category: ICategory = await this.dbService.getCategory({
+        const category: ICategory | undefined = await this.dbService.getCategory({
             where: {
                 OR: [{ id: id }, { slug: slug }],
             },
@@ -34,7 +34,7 @@ export class CategoryService {
      * @return ICategory Созданная категория
      */
     async createCategory(body: CreateCategoryDto): Promise<ICategory> {
-        const category: ICategory = await this.dbService.getCategory({
+        const category: ICategory | undefined = await this.dbService.getCategory({
             where: {
                 slug: body.slug,
             },
@@ -44,7 +44,7 @@ export class CategoryService {
             throw new HttpException('Категория с таким уникальным названием уже существует', HttpStatus.CONFLICT);
         }
 
-        return this.dbService.createCategory({ id: crypto.randomUUID(), ...body });
+        return this.dbService.createCategory({ data: { id: crypto.randomUUID(), ...body } });
     }
 
     /**
@@ -53,7 +53,7 @@ export class CategoryService {
      * @return ICategory Удаленная категория
      */
     async deleteCategory(id: string): Promise<ICategory> {
-        const category: ICategory = await this.dbService.getCategory({
+        const category: ICategory | undefined = await this.dbService.getCategory({
             where: {
                 id: id,
             },

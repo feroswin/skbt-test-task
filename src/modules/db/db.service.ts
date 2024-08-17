@@ -13,7 +13,7 @@ export class DbService extends PrismaClient implements OnModuleInit {
      * @param query - Запрос
      * @return ICategory Категория
      */
-    async getCategory(query: Prisma.categoryFindFirstArgs): Promise<ICategory> {
+    async getCategory(query: Prisma.categoryFindFirstArgs): Promise<ICategory | undefined> {
         try {
             return this.category.findFirst(query);
         } catch (e) {
@@ -23,14 +23,12 @@ export class DbService extends PrismaClient implements OnModuleInit {
 
     /**
      * Метод создания категории в БД
-     * @param data - Данные категории
+     * @param query - Запрос
      * @return ICategory Созданная категория
      */
-    async createCategory(data: Prisma.categoryCreateInput): Promise<ICategory> {
+    async createCategory(query: Prisma.categoryCreateArgs): Promise<ICategory> {
         try {
-            return await this.category.create({
-                data,
-            });
+            return await this.category.create(query);
         } catch (e) {
             throw new HttpException('Ошибка при создании категории', HttpStatus.INTERNAL_SERVER_ERROR);
         }
