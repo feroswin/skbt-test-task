@@ -1,22 +1,39 @@
-import { IsBoolean, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString, Matches, Max, Min } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class ListCategoryFilterDto {
     @IsOptional()
     @IsString()
+    @Matches(new RegExp('^[A-Za-zА-Яа-яЁё\\s]*$'), { message: 'Значение должно содержать англ. или русские буквы' })
+    @Transform(({ value }) => {
+        if (typeof value === 'string') {
+            return value.trim();
+        }
+    })
     name?: string;
 
     @IsOptional()
     @IsString()
+    @Matches(new RegExp('^[A-Za-zА-Яа-яЁё\\s]*$'), { message: 'Значение должно содержать англ. или русские буквы' })
+    @Transform(({ value }) => {
+        if (typeof value === 'string') {
+            return value.trim();
+        }
+    })
     description?: string;
 
     @IsOptional()
-    @Transform(({ value }) => value == '1' || value == 'true')
+    @Transform(({ value }) => (value == '1' || value == 'true' ? true : value == '0' || value == 'false' ? false : undefined))
     @IsBoolean()
     active?: boolean;
 
     @IsOptional()
-    // @IsString()
+    @IsString()
+    @Transform(({ value }) => {
+        if (typeof value === 'string') {
+            return value.trim();
+        }
+    })
     search?: string;
 
     @IsOptional()
@@ -34,5 +51,10 @@ export class ListCategoryFilterDto {
 
     @IsOptional()
     @IsString()
+    @Transform(({ value }) => {
+        if (typeof value === 'string') {
+            return value.trim();
+        }
+    })
     sort?: string;
 }

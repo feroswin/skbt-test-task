@@ -60,12 +60,14 @@ export class CategoryService {
             };
         }
 
-        if (queryParams.active) {
+        if (queryParams.active !== undefined) {
             where = {
                 ...where,
                 active: queryParams.active,
             };
         }
+
+        // console.log(queryParams);
 
         if (queryParams.sort) {
             const parseSortField = queryParams.sort.startsWith('-') ? queryParams.sort.split('-')[1] : queryParams.sort;
