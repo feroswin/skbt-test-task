@@ -40,13 +40,31 @@ export class ListCategoryFilterDto {
     @IsNumber({}, { message: 'Значение должно быть числом' })
     @Min(1, { message: 'Значение должно быть больше 1' })
     @Max(9, { message: 'Значение должно быть меньше или равно 9' })
-    @Transform(({ value }) => Number(value))
+    @Transform(
+        ({ value }) => {
+            if (typeof value === 'string') {
+                const trimTransformValue = Number(value.trim());
+                return trimTransformValue === 0 ? 2 : trimTransformValue;
+            }
+            return value;
+        },
+        { toClassOnly: true },
+    )
     pageSize?: number = 2;
 
     @IsOptional()
     @IsNumber({}, { message: 'Значение должно быть числом' })
     @Min(0, { message: 'Значение должно быть больше или равно 0' })
-    @Transform(({ value }) => Number(value))
+    @Transform(
+        ({ value }) => {
+            if (typeof value === 'string') {
+                const trimTransformValue = Number(value.trim());
+                return trimTransformValue < 0 ? 0 : trimTransformValue;
+            }
+            return value;
+        },
+        { toClassOnly: true },
+    )
     page?: number = 0;
 
     @IsOptional()

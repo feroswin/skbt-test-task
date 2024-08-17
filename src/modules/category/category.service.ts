@@ -36,6 +36,7 @@ export class CategoryService {
     }
 
     async getListCategory(queryParams: ListCategoryFilterDto) {
+        // console.log(queryParams);
         let where: Prisma.categoryWhereInput = {};
         let orderBy: Prisma.categoryOrderByWithRelationInput = {};
 

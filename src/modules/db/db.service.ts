@@ -30,6 +30,7 @@ export class DbService extends PrismaClient implements OnModuleInit {
         try {
             return await this.category.findMany(query);
         } catch (e) {
+            console.log(e);
             throw new HttpException('Ошибка при получении категорий', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
