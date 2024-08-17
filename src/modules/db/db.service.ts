@@ -22,6 +22,19 @@ export class DbService extends PrismaClient implements OnModuleInit {
     }
 
     /**
+     * Метод получения списка категорий из БД
+     * @param query - Запрос
+     * @return Список категорий
+     */
+    async getListCategory(query: Prisma.categoryFindManyArgs) {
+        try {
+            return await this.category.findMany(query);
+        } catch (e) {
+            throw new HttpException('Ошибка при получении категорий', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
      * Метод создания категории в БД
      * @param {Prisma.categoryCreateArgs} query - Запрос
      * @return Созданная категория

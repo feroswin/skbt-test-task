@@ -4,6 +4,9 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { ICategory } from '../../interfaces/category.interface';
 import * as crypto from 'crypto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { ListCategoryFilterDto } from './dto/list-category-filter.dto';
+import { Prisma } from '@prisma/client';
+import { hasPropertyCategoryInModel } from '../../helpers/hasPropertyInModel';
 
 @Injectable()
 export class CategoryService {
@@ -30,6 +33,62 @@ export class CategoryService {
 
         // Возвращаем категорию
         return category;
+    }
+
+    async getListCategory(queryParams: ListCategoryFilterDto) {
+        let where: Prisma.categoryWhereInput = {};
+        let orderBy: Prisma.categoryOrderByWithRelationInput = {};
+
+        if (queryParams.search) {
+            where = {
+                ...where,
+                OR: [{ name: { search: queryParams.search } }, { description: { search: queryParams.search } }],
+            };
+        }
+
+        if (queryParams.name && !queryParams.search) {
+            where = {
+                ...where,
+                name: { search: queryParams.name },
+            };
+        }
+
+        if (queryParams.description && !queryParams.search) {
+            where = {
+                ...where,
+                description: { search: queryParams.description },
+            };
+        }
+
+        if (queryParams.active) {
+            where = {
+                ...where,
+                active: queryParams.active,
+            };
+        }
+
+        if (queryParams.sort) {
+            const parseSortField = queryParams.sort.startsWith('-') ? queryParams.sort.split('-')[1] : queryParams.sort;
+
+            const fieldForSort = hasPropertyCategoryInModel(parseSortField) ? parseSortField : 'createdDate';
+
+            orderBy = {
+                ...orderBy,
+                [fieldForSort]: queryParams.sort.startsWith('-') ? 'desc' : 'asc',
+            };
+        } else {
+            orderBy = {
+                ...orderBy,
+                createdDate: 'desc',
+            };
+        }
+
+        return await this.dbService.getListCategory({
+            where: where,
+            take: queryParams.pageSize,
+            skip: queryParams.pageSize * (queryParams.page === 1 ? 0 : queryParams.page),
+            orderBy: orderBy,
+        });
     }
 
     /**
