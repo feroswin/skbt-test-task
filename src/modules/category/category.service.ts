@@ -49,7 +49,7 @@ export class CategoryService {
         const listCategories: CategoryDto[] = await this.dbService.getListCategory({
             where,
             take: queryParams.pageSize,
-            skip: queryParams.pageSize * (queryParams.page === 1 ? 0 : queryParams.page),
+            skip: queryParams.pageSize * (queryParams.page === 1 ? 0 : queryParams.page - 1 < 0 ? queryParams.page : queryParams.page - 1),
             orderBy,
         });
 

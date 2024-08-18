@@ -50,7 +50,7 @@ services:
       PMA_HOST: mysql
       PMA_PORT: "${MYSQL_DOCKER_PORT}"
     ports:
-      - "8080:80"
+      - "${PHPMYADMIN_LOCAL_PORT}:${PHPMYADMIN_DOCKER_PORT}"
     networks:
       - default
 volumes:
