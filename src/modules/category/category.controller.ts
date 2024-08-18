@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, ValidationPipe } from '@nestjs/common';
 import { CategoryService } from './category.service';
-import { ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateCategoryDto } from './dto/request/create-category.dto';
 import { CategoryDto } from './dto/response/category.dto';
 import { ICategory } from '../../interfaces/category.interface';
@@ -8,6 +8,7 @@ import { UpdateCategoryDto } from './dto/request/update-category.dto';
 import { ListCategoryFilterDto } from './dto/request/list-category-filter.dto';
 import { ListCategoryFilters } from '../../decorators/list-category-filters.decorator';
 
+@ApiTags('category')
 @Controller('category')
 export class CategoryController {
     constructor(private readonly categoryService: CategoryService) {}
